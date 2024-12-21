@@ -112,10 +112,21 @@ class PeopleController extends ApiController
             ]);
         }
 
-        $raffles = $people->raffles->pluck('id');
+        $hits = 0;
+        foreach ($people->raffles as $raffle) {
+            if ($raffle->pivot->is_active) {
+                $hits++;
+            }
+        }
 
+        if ($hits > 0) {
+            throw ValidationException::withMessages([
+                'identification'    =>  ['El usuario ya esta registrado']
+            ]);
+        }
+
+        $raffles = $people->raffles->pluck('id');
         $people->raffles()->syncWithPivotValues($raffles, ['is_active' => true]);
-        FacadesStorage::append('raffles.json', json_encode($raffles, JSON_PRETTY_PRINT));
 
         return $this->successResponse(PeopleResource::make($people), Response::HTTP_OK);
     }
