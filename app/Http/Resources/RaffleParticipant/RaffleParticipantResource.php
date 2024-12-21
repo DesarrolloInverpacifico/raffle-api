@@ -2,9 +2,6 @@
 
 namespace App\Http\Resources\RaffleParticipant;
 
-use App\Http\Resources\Raffle\RaffleResource;
-use App\Http\Resources\RafflePrize\RafflePrizeResource;
-use App\Models\RafflePrize;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -31,11 +28,11 @@ class RaffleParticipantResource extends JsonResource
     private function getAttributes(): array
     {
         return [
-            'name'                  =>  $this->name,
-            'email'                 =>  $this->email,
-            'identification_number' =>  $this->identification_number,
-            'is_winner'             =>  $this->is_winner,
-            'won_at'                =>  $this->won_at,
+            'name'                      =>  $this->name,
+            'lastName'                  =>  $this->last_name,
+            'identification_number'     =>  $this->identification_number,
+            'is_winner'                 =>  $this->pivot->is_winner,
+            'is_active'                 =>  $this->pivot->is_active,
         ];
     }
 
@@ -44,9 +41,6 @@ class RaffleParticipantResource extends JsonResource
      */
     private function getRelationships(): array
     {
-        return [
-            'raffle'    =>  RaffleResource::make($this->whenLoaded('raffle')),
-            'prizes'    =>  RafflePrizeResource::collection($this->whenLoaded('rafflePrize')),
-        ];
+        return [];
     }
 }

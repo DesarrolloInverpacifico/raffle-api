@@ -6,41 +6,23 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Raffle extends Model
+class People extends Model
 {
-
     use HasFactory;
 
     protected $fillable = [
         'name',
-        'description',
-        'date'
+        'last_name',
+        'identification_number'
     ];
 
     /**
      * 
      */
-    public function raffleCriterias(): HasMany
+    public function raffles(): BelongsToMany
     {
-        return $this->hasMany(RaffleCriteria::class, 'raffle_id');
-    }
-
-    /**
-     * 
-     */
-    public function raffleParticipants(): HasMany
-    {
-        return $this->hasMany(RaffleParticipant::class, 'raffle_id');
-    }
-
-    /**
-     * 
-     */
-    public function people(): BelongsToMany
-    {
-        return $this->belongsToMany(People::class, 'people_raffles', 'raffle_id', 'people_id')
+        return $this->belongsToMany(Raffle::class, 'people_raffles', 'people_id', 'raffle_id')
             ->withPivot(['is_winner', 'is_active']);
     }
 
@@ -54,7 +36,9 @@ class Raffle extends Model
     public function scopeSearch(Builder $query, string $s = null): void
     {
         if (!is_null($s)) {
-            $query->where('name', 'like', "%{$s}%");
+            $query->where('name', 'like', "%{$s}%")
+                ->orWhere('last_name', 'like', "%{$s}%")
+                ->orWhere('identification_number', 'like', "%{$s}%");
         }
     }
 }

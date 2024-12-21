@@ -78,7 +78,7 @@ class RaffleController extends ApiController
      */
     public function getParticipants(Request $request, Raffle $raffle)
     {
-        $participants = $raffle->raffleParticipants;
+        $participants = $raffle->people;
 
         return $this->successResponse(RaffleParticipantResource::collection($participants), Response::HTTP_OK);
     }
@@ -88,9 +88,7 @@ class RaffleController extends ApiController
      */
     public function storeParticipants(Request $request, Raffle $raffle)
     {
-        Excel::import(new RafflePartifipantImport($raffle->id), request()->file('file'));
-
-        Storage::append('file.json', json_encode($request->all()), JSON_PRETTY_PRINT);
+        Excel::import(new RafflePartifipantImport($raffle), request()->file('file'));
 
         return $this->successResponse([], Response::HTTP_OK);
     }
@@ -114,5 +112,17 @@ class RaffleController extends ApiController
 
         // dd($criterias);
         return $this->successResponse(RaffleCriteriaResource::collection($criterias), Response::HTTP_OK);
+    }
+
+    /**
+     * 
+     */
+    public function updateWinner(Request $request, Raffle $raffle)
+    {
+        $raffle->people()->updateExistingPivot($request->people_id, [
+            'is_winner' => true
+        ]);
+
+        return $this->successResponse([], Response::HTTP_CREATED);
     }
 }

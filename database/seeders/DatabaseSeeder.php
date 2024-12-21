@@ -2,11 +2,13 @@
 
 namespace Database\Seeders;
 
+use App\Models\People;
 use App\Models\Raffle;
 use App\Models\RaffleCriteria;
 use App\Models\RaffleParticipant;
 use App\Models\RafflePrize;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -23,16 +25,9 @@ class DatabaseSeeder extends Seeder
             'password'  => bcrypt('password'),
         ]);
 
-        Raffle::factory()->count(1)->create()->each(function (Raffle $raffle) {
+        $people = People::factory()->count(10)->create();
 
-            // Create Prize
-            // $prizes = RafflePrize::factory()->count(random_int(1, 4))->create([
-            //     'raffle_id' =>  $raffle->id
-            // ]);
-            // $raffle->rafflePrizes()->saveMany($prizes);
-
-            // Create Criteria
-            // $positions = count($prizes);
+        Raffle::factory()->count(1)->create()->each(function (Raffle $raffle) use ($people) {
 
             $criterias = RaffleCriteria::factory()->count(random_int(1, 4))->create([
                 'raffle_id'         =>  $raffle->id,
@@ -42,18 +37,15 @@ class DatabaseSeeder extends Seeder
 
 
             // Create Participant
-            $participants = RaffleParticipant::factory()->count(50)->create([
-                'raffle_id' =>  $raffle->id
-            ]);
+            $ids = $people->pluck('id');
+            $raffle->people()->sync($ids->random(random_int(1, count($ids))));
 
-            // Run Raffle
-            $winners = $participants->random(count($criterias));
-
+            $amountWinners = $ids->random(random_int(1, count($criterias)));
             // Update Winner
-            foreach ($winners as $key => $winner) {
-                $winner->update([
-                    'is_winner'         =>  true,
-                    'won_at'            =>  \Carbon\Carbon::now()
+            foreach ($amountWinners as $key => $idWinner) {
+                $raffle->people()->updateExistingPivot($idWinner, [
+                    'is_winner' =>  true,
+                    'is_active' =>  true
                 ]);
             }
         });
