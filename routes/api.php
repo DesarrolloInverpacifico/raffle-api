@@ -16,6 +16,7 @@ Route::prefix('v1')->group(function () {
     Route::get('raffles/{raffle}/prizes', [RaffleController::class, 'getPrizes']);
     Route::get('raffles/{raffle}/criterias', [RaffleController::class, 'getCriterias']);
     Route::put('raffles/{raffle}/winner', [RaffleController::class, 'updateWinner']);
+    Route::post('raffles/{raffle}/resetParticipants', [RaffleController::class, 'resetParticipants']);
 
     Route::post('people/upload', [PeopleController::class, 'upload']);
     Route::get('people/export', [PeopleController::class, 'export']);

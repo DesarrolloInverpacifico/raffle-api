@@ -125,4 +125,19 @@ class RaffleController extends ApiController
 
         return $this->successResponse([], Response::HTTP_CREATED);
     }
+
+    /**
+     * 
+     */
+    public function resetParticipants(Request $request, Raffle $raffle)
+    {
+        $participantsIds = $raffle->people()->pluck('id')->toArray();
+
+        $raffle->people()->updateExistingPivot($participantsIds, [
+            'is_winner' => false,
+            'is_active' => false
+        ]);
+
+        return $this->successResponse([], Response::HTTP_CREATED);
+    }
 }
